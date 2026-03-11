@@ -30,7 +30,7 @@ solution:
         - "CORE_M55_HP"
 
     - type: E1C-HE
-      device: Alif Semiconductor::AE1C1F4051920PH:M55_HE
+      device: Alif Semiconductor::AE1C1F4051920PH0:M55_HE
       board: Alif Semiconductor::DevKit-E1C
       define:
         - "M55_HE"

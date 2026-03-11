@@ -75,22 +75,31 @@ static void configure_spi_pinmux()
             PADCTRL_SCHMITT_TRIGGER_ENABLE |
             PADCTRL_OUTPUT_DRIVE_STRENGTH_4MA;
 
-    #if defined(ENSEMBLE_SOC_GEN2)
-             /* Port 1 */
-     HW_REG32(PINMUX_BASE, 0x20) = 2 | (padconf << 16);  /* P1_0 is SPI0_MISO */
-     HW_REG32(PINMUX_BASE, 0x24) = 2 | (padconf << 16);  /* P1_1 is SPI0_MOSI */
-     HW_REG32(PINMUX_BASE, 0x28) = 2 | (padconf << 16);  /* P1_2 is SPI0_CLK */
-     HW_REG32(PINMUX_BASE, 0x2C) = 2 | (padconf << 16);  /* P1_3 is SPI0_SS0 */
+#if defined(ENSEMBLE_SOC_GEN2)
 
-     #else
+    /* Port 1 */
+    HW_REG32(PINMUX_BASE, 0x20) = 2 | (padconf << 16);  /* P1_0 is SPI0_MISO */
+    HW_REG32(PINMUX_BASE, 0x24) = 2 | (padconf << 16);  /* P1_1 is SPI0_MOSI */
+    HW_REG32(PINMUX_BASE, 0x28) = 2 | (padconf << 16);  /* P1_2 is SPI0_CLK */
+    HW_REG32(PINMUX_BASE, 0x2C) = 2 | (padconf << 16);  /* P1_3 is SPI0_SS0 */
+
+#elif defined(ENSEMBLE_SOC_E1C)
 
     /* Port 5 */
-     HW_REG32(PINMUX_BASE, 0xA0) = 4 | (padconf << 16);  /* P5_0 is SPI0_MISO */
-     HW_REG32(PINMUX_BASE, 0xA4) = 4 | (padconf << 16);  /* P5_1 is SPI0_MOSI */
-     HW_REG32(PINMUX_BASE, 0xA8) = 4 | (padconf << 16);  /* P5_2 is SPI0_SS0 */
-     HW_REG32(PINMUX_BASE, 0xAC) = 3 | (padconf << 16);  /* P5_3 is SPI0_SCLK */
+    HW_REG32(PINMUX_BASE, 0xA0) = 3 | (padconf << 16);  /* P5_0 is SPI0_MISO */
+    HW_REG32(PINMUX_BASE, 0xA4) = 3 | (padconf << 16);  /* P5_1 is SPI0_MOSI */
+    HW_REG32(PINMUX_BASE, 0xA8) = 4 | (padconf << 16);  /* P5_2 is SPI0_SS0 */
+    HW_REG32(PINMUX_BASE, 0xAC) = 3 | (padconf << 16);  /* P5_3 is SPI0_SCLK */
 
-     #endif
+#else
+
+    /* Port 5 */
+    HW_REG32(PINMUX_BASE, 0xA0) = 4 | (padconf << 16);  /* P5_0 is SPI0_MISO */
+    HW_REG32(PINMUX_BASE, 0xA4) = 4 | (padconf << 16);  /* P5_1 is SPI0_MOSI */
+    HW_REG32(PINMUX_BASE, 0xA8) = 4 | (padconf << 16);  /* P5_2 is SPI0_SS0 */
+    HW_REG32(PINMUX_BASE, 0xAC) = 3 | (padconf << 16);  /* P5_3 is SPI0_SCLK */
+
+#endif
 
     /* DEBUG */
     HW_REG32(PINMUX_BASE, 0xB0) = padconf << 16; /* P5_4 is GPIO5_4 */

@@ -48,13 +48,21 @@ static void configure_utimer_pinmux()
     HW_REG32(PINMUX_BASE, 0x80) = 0 | (padconf << 16);  /* P4_0 is GPIO4_0 */
 }
 
-static void configure_utimer_in_event_router0()
+static void configure_utimer_in_event_router()
 {
+#if defined(ENSEMBLE_SOC_E1C)
+    /* enable clock to event router */
+    HW_REG32(M55HE_CFG_BASE, 0xC) |= (1U << 4);
+
+    HW_REG32(EVTRTR2_BASE, 0x08) = 0x12;    /* EVTRTR2_IN[2] is UT1_T0 */
+    HW_REG32(EVTRTR2_BASE, 0x20) = 0x13;    /* EVTRTR2_IN[8] is GPIO4_0 */
+#else
     /* enable clock to event router */
     HW_REG32(CLKCTL_PER_MST_BASE, 0xC) |= (1U << 4);
 
-    HW_REG32(EVTRTR0_BASE, 0x08) = 0x12;    /* EVTRTR_IN[2] is UT1_T0 */
-    HW_REG32(EVTRTR0_BASE, 0x20) = 0x13;    /* EVTRTR_IN[8] is GPIO4_0 */
+    HW_REG32(EVTRTR0_BASE, 0x08) = 0x12;    /* EVTRTR0_IN[2] is UT1_T0 */
+    HW_REG32(EVTRTR0_BASE, 0x20) = 0x13;    /* EVTRTR0_IN[8] is GPIO4_0 */
+#endif
 }
 
 void UTIMER_config(uint32_t UTIMER_CLK)
@@ -69,7 +77,7 @@ void UTIMER_config(uint32_t UTIMER_CLK)
         utimer->UTIMER_GLB_DRIVER_OEN = UT_DRIVER_MASK;
 
         configure_utimer_pinmux();
-        configure_utimer_in_event_router0();
+        configure_utimer_in_event_router();
     }
 
     /* UTIMER0 */
