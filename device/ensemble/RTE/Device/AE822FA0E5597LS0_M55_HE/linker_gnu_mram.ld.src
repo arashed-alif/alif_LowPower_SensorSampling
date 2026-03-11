@@ -30,9 +30,8 @@
 
 #define __STACK_SIZE             APP_HE_STACK_SIZE
 #define __HEAP_SIZE              APP_HE_HEAP_SIZE
-#define __APP_HEAP_SIZE          0x00004000
 #define __ROM_BASE               APP_MRAM_HE_BASE
-#define __ROM_SIZE               0x0057F000
+#define __ROM_SIZE               APP_MRAM_HE_SIZE
 
 /*
  * Note:
@@ -45,10 +44,10 @@ MEMORY
 {
   ITCM  (rwx) : ORIGIN = APP_ITCM_BASE , LENGTH = APP_HE_ITCM_SIZE
   DTCM  (rwx) : ORIGIN = APP_DTCM_BASE , LENGTH = APP_HE_DTCM_SIZE
-  #if __HAS_BULK_SRAM
+#if __HAS_BULK_SRAM
   SRAM0 (rwx) : ORIGIN = APP_SRAM0_BASE, LENGTH = APP_SRAM0_SIZE
   SRAM1 (rwx) : ORIGIN = APP_SRAM1_BASE, LENGTH = APP_SRAM1_SIZE
-  #endif
+#endif
   MRAM  (rx)  : ORIGIN = __ROM_BASE, LENGTH = __ROM_SIZE
 }
 
@@ -93,10 +92,12 @@ SECTIONS
     __zero_table_start__ = .;
     LONG (ADDR(.bss))
     LONG (SIZEOF(.bss)/4)
+#if __HAS_BULK_SRAM
     LONG (ADDR(.bss.at_sram0))
     LONG (SIZEOF(.bss.at_sram0)/4)
     LONG (ADDR(.bss.at_sram1))
     LONG (SIZEOF(.bss.at_sram1)/4)
+#endif
     __zero_table_end__ = .;
     . = ALIGN(16);
   } > MRAM
@@ -112,7 +113,7 @@ SECTIONS
     *(vtable)
     *(.data)
     *(.data*)
-    *arm_common_tables.c.obj*(.data* .rodata*)
+    *arm_common_tables*(.data* .rodata*)
 
     KEEP(*(.jcr*))
 
@@ -125,6 +126,7 @@ SECTIONS
     . = ALIGN(16);
   } > DTCM AT > MRAM
 
+#if __HAS_BULK_SRAM
   .bss.at_sram0 (NOLOAD) : ALIGN(8)
   {
     *(.bss.lcd_crop_and_interpolate_buf)  /* LCD crop and intrepolate image processing buffer. */
@@ -137,6 +139,7 @@ SECTIONS
     * (.bss.camera_frame_bayer_to_rgb_buf) /* (Optional) Camera Frame Buffer for Bayer to RGB Conversion. */
     * (.bss.spi_dma_xfer_buffers)
   } > SRAM1
+#endif
 
   .bss (NOLOAD) : ALIGN(8)
   {
@@ -148,14 +151,6 @@ SECTIONS
     . = ALIGN(8);
     __bss_end__ = .;
   } > DTCM
-
-  .__app_heap (NOLOAD) :
-  {
-     . = ALIGN(8);
-     __RAM_segment_used_end__ = .;
-     . = . + __APP_HEAP_SIZE;
-     . = ALIGN(8);
-   } >DTCM
 
   .heap (NOLOAD) : ALIGN(8)
   {
